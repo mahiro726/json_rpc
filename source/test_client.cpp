@@ -50,5 +50,9 @@ int main()
     topic_req->SetTopicOptype(lccrpc::TopicOptype::TOPIC_SUBSCRIBE);
     client->Send(topic_req);
 
+    // 发送函数返回不代表服务端已经处理完成，也不代表客户端已经收到响应
+    std::cout << "等待服务器响应，看到两条应答后按回车退出……" << std::endl;
+    std::cin.get();
+
     client->Shutdown();
 }

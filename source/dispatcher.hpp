@@ -11,12 +11,13 @@ namespace lccrpc
         
         void RegisterHandler(MType mtype, const MessageCallback &handler)
         {
+            // 先加锁
             std::lock_guard<std::mutex> lock(_mutex);
             // 注册需要消息类型和对应的消息处理函数
             _handlers.insert(make_pair(mtype, handler));
         }
 
-        void OnMessage(const BaseConnection::Ptr& conn, BaseMessage::Ptr& msg)
+        void OnMessage(const BaseConnection::Ptr& conn, BaseMessage::Ptr& msg) // 其实重点是围绕着OnMessage，为什么要_handlers也是为了OnMessage可以根据消息类型选择业务处理
         {
             std::lock_guard<std::mutex> lock(_mutex);
             // 找到消息类型对应的函数，调用即可

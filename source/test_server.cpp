@@ -34,6 +34,7 @@ int main()
     dispatcher->RegisterHandler(lccrpc::MType::REQ_RPC, onRpcRequest);
     dispatcher->RegisterHandler(lccrpc::MType::REQ_TOPIC, onTopicRequest);
 
+    // 有了bind就可以把成员函数注册进去了
     auto message_callback = std::bind(&lccrpc::Dispatcher::OnMessage, dispatcher.get(), std::placeholders::_1, std::placeholders::_2);
 
     auto server = lccrpc::ServerFactory::create(8080);

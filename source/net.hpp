@@ -408,10 +408,14 @@ namespace lccrpc
         {
             if (conn->connected())
             {
+                // 先准备好主线程发送时需要的连接对象
+                _conn = ConnectionFactory::create(conn, _protocol);
+
                 // 打印调试信息
                 std::cout << "客户端连接建立成功！" << std::endl;
-                _downlatch.countDown(); // 计数--，为0时唤醒阻塞
-                _conn = ConnectionFactory::create(conn, _protocol);
+
+                // 准备完成后，再通知主线程继续
+                _downlatch.countDown();
             }
             else
             {
