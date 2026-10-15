@@ -1,0 +1,38 @@
+# 编译目录
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+compile_commands.json
+
+# 编译产物
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dll
+*.exe
+*.out
+
+# Linux 下直接编译生成的程序
+# 按你的实际输出文件名修改
+/server
+/client
+
+# 运行日志与崩溃转储
+*.log
+/core
+/core.[0-9]*
+
+# 编辑器临时文件
+*.swp
+*.swo
+*~
+*.tmp
+
+# 系统杂项
+.DS_Store
+Thumbs.db
