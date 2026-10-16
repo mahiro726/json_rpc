@@ -3,14 +3,14 @@
 #include "dispatcher.hpp"
 #include "fields.hpp"
 
-void onRpcResponse(const lccrpc::BaseConnection::Ptr& conn, lccrpc::BaseMessage::Ptr& msg)
+void onRpcResponse(const lccrpc::BaseConnection::Ptr& conn, lccrpc::RpcResponse::Ptr& msg)
 {
     std::cout << "收到了RPC应答：";
     std::string body = msg->Serialize();
     std::cout << body << std::endl;
 }
 
-void onTopicResponse(const lccrpc::BaseConnection::Ptr& conn, lccrpc::BaseMessage::Ptr& msg)
+void onTopicResponse(const lccrpc::BaseConnection::Ptr& conn, lccrpc::TopicResponse::Ptr& msg)
 {
     std::cout << "收到了Topic应答：";
     std::string body = msg->Serialize();
@@ -21,8 +21,8 @@ int main()
 {
     auto dispatcher = std::make_shared<lccrpc::Dispatcher>();
     //注册映射关系
-    dispatcher->RegisterHandler(lccrpc::MType::RSP_RPC, onRpcResponse);
-    dispatcher->RegisterHandler(lccrpc::MType::RSP_TOPIC, onTopicResponse);
+    dispatcher->RegisterHandler<lccrpc::RpcResponse>(lccrpc::MType::RSP_RPC, onRpcResponse);
+    dispatcher->RegisterHandler<lccrpc::TopicResponse>(lccrpc::MType::RSP_TOPIC, onTopicResponse);
     
     auto client = lccrpc::ClientFactory::create("127.0.0.1", 8080);
 
