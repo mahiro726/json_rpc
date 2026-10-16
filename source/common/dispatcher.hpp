@@ -1,6 +1,8 @@
 #pragma once
-#include "net.hpp"
+#include "abstract.hpp"
 #include "message.hpp"
+#include <mutex>
+#include <unordered_map>
 
 namespace lccrpc
 {

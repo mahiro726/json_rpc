@@ -99,9 +99,15 @@ namespace lccrpc
             _body[KEY_METHOD] = method_name;
         }
 
-        Json::Value GetParems()
+        Json::Value GetParams()
         {
             return _body[KEY_PARAMS];
+        }
+
+        // 保留旧拼写，兼容已经写过的调用代码。
+        Json::Value GetParems()
+        {
+            return GetParams();
         }
         void SetParams(const Json::Value &params)
         {
@@ -253,8 +259,8 @@ namespace lccrpc
                 return false;
             }
 
-            // 结果可以是数字、字符串或对象，只要求非空
-            if (_body[KEY_RESULT].isNull() == true)
+            // 错误响应可以没有业务结果；成功响应仍要求结果非空。
+            if (GetRCode() == RCode::RCODE_OK && _body[KEY_RESULT].isNull())
             {
                 ELOG("RPC响应中没有调用结果！");
                 return false;

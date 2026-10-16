@@ -1,19 +1,11 @@
 #include "message.hpp"
 #include "net.hpp"
 #include "dispatcher.hpp"
+#include "../server/rpc_router.hpp"
 
-void onRpcRequest(const lccrpc::BaseConnection::Ptr& conn, lccrpc::RpcRequest::Ptr& msg)
+void Add(const Json::Value& params, Json::Value& result)
 {
-    std::cout << "调用方法：" << msg->GetMethod() << std::endl;
-    std::cout << "服务端收到了rpc请求：";
-    std::string body = msg->Serialize();
-    std::cout << body << std::endl;
-    auto rpc_res = lccrpc::MessageFactory::create<lccrpc::RpcResponse>();
-    rpc_res->SetId("1111");
-    rpc_res->SetMType(lccrpc::MType::RSP_RPC);
-    rpc_res->SetRCode(lccrpc::RCode::RCODE_OK);
-    rpc_res->SetResult(33);
-    conn->Send(rpc_res);
+    result = params["num1"].asInt() + params["num2"].asInt();
 }
 
 void onTopicRequest(const lccrpc::BaseConnection::Ptr& conn, lccrpc::TopicRequest::Ptr& msg)
@@ -30,9 +22,20 @@ void onTopicRequest(const lccrpc::BaseConnection::Ptr& conn, lccrpc::TopicReques
 
 int main()
 {
+    auto router = std::make_shared<lccrpc::server::RpcRouter>();
+    lccrpc::server::SDescribeFactory factory;
+    factory.setMethodName("Add");
+    factory.setParamsDesc("num1", lccrpc::server::VType::INTEGRAL);
+    factory.setParamsDesc("num2", lccrpc::server::VType::INTEGRAL);
+    factory.setReturnType(lccrpc::server::VType::INTEGRAL);
+    factory.setCallback(Add);
+    router->registerMethod(factory.build());
+
     auto dispatcher = std::make_shared<lccrpc::Dispatcher>();
     // 注册对应的消息处理函数
-    dispatcher->RegisterHandler<lccrpc::RpcRequest>(lccrpc::MType::REQ_RPC, onRpcRequest);
+    auto rpc_callback = std::bind(&lccrpc::server::RpcRouter::onRpcRequest,
+        router, std::placeholders::_1, std::placeholders::_2);
+    dispatcher->RegisterHandler<lccrpc::RpcRequest>(lccrpc::MType::REQ_RPC, rpc_callback);
     dispatcher->RegisterHandler<lccrpc::TopicRequest>(lccrpc::MType::REQ_TOPIC, onTopicRequest);
 
     // 有了bind就可以把成员函数注册进去了
