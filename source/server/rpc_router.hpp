@@ -103,6 +103,7 @@ namespace lccrpc
                 return false;
             }
 
+        private:
             std::string _method_name;
             ServiceCallback _callback;
             std::vector<ParamsDescribe> _params_desc;
