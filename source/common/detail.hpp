@@ -89,6 +89,7 @@ namespace lccrpc
 
     class UUID
     {
+    public:
         static std::string uuid()
         {
             std::random_device rd;

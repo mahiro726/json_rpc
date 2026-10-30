@@ -4,6 +4,7 @@ LFLAG = -L../build/release-install-cpp11/lib -ljsoncpp -lmuduo_net -lmuduo_base 
 HEADERS = $(wildcard *.hpp ../server/*.hpp ../client/*.hpp)
 ROUTER_TEST = ../../build/tests/rpc_router_tests
 REQUESTOR_TEST = ../../build/tests/requestor_tests
+CALLER_TEST = ../../build/tests/rpc_caller_tests
 
 all : client server
 server : test_server.cpp $(HEADERS)
@@ -25,6 +26,13 @@ $(REQUESTOR_TEST): ../client/test_requestor.cpp $(HEADERS)
 test-requestor: $(REQUESTOR_TEST)
 	$(REQUESTOR_TEST)
 
-.PHONY: clean test-rpc-router test-requestor
+$(CALLER_TEST): ../client/test_rpc_caller.cpp $(HEADERS)
+	mkdir -p ../../build/tests
+	$(CXX) $(CFLAG) -o $@ $< -ljsoncpp -pthread
+
+test-rpc-caller: $(CALLER_TEST)
+	$(CALLER_TEST)
+
+.PHONY: clean test-rpc-router test-requestor test-rpc-caller
 clean:
 	rm -f server client
