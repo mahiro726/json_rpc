@@ -1,11 +1,13 @@
-#include "message.hpp"
-#include "net.hpp"
-#include "dispatcher.hpp"
+#include "../common/message.hpp"
+#include "../common/net.hpp"
+#include "../common/dispatcher.hpp"
 #include "../server/rpc_router.hpp"
 
-void Add(const Json::Value& params, Json::Value& result)
+void Add(const Json::Value& req, Json::Value& rsp)
 {
-    result = params["num1"].asInt() + params["num2"].asInt();
+    int num1 = req["num1"].asInt();
+    int num2 = req["num2"].asInt();
+    rsp = num1 + num2;
 }
 
 void onTopicRequest(const lccrpc::BaseConnection::Ptr& conn, lccrpc::TopicRequest::Ptr& msg)
@@ -23,15 +25,18 @@ void onTopicRequest(const lccrpc::BaseConnection::Ptr& conn, lccrpc::TopicReques
 int main()
 {
     auto router = std::make_shared<lccrpc::server::RpcRouter>();
-    lccrpc::server::SDescribeFactory factory;
-    factory.setMethodName("Add");
-    factory.setParamsDesc("num1", lccrpc::server::VType::INTEGRAL);
-    factory.setParamsDesc("num2", lccrpc::server::VType::INTEGRAL);
-    factory.setReturnType(lccrpc::server::VType::INTEGRAL);
-    factory.setCallback(Add);
-    router->registerMethod(factory.build());
+    std::unique_ptr<lccrpc::server::SDescribeFactory> desc_factory(new lccrpc::server::SDescribeFactory());
+
+    // set方法描述，并注册到router管理的服务表中
+    desc_factory->setMethodName("Add");
+    desc_factory->setParamsDesc("num1", lccrpc::server::VType::INTEGRAL);
+    desc_factory->setParamsDesc("num2", lccrpc::server::VType::INTEGRAL);
+    desc_factory->setReturnType(lccrpc::server::VType::INTEGRAL);
+    desc_factory->setCallback(Add);
+    router->registerMethod(desc_factory->build());
 
     auto dispatcher = std::make_shared<lccrpc::Dispatcher>();
+
     // 注册对应的消息处理函数
     auto rpc_callback = std::bind(&lccrpc::server::RpcRouter::onRpcRequest,
         router, std::placeholders::_1, std::placeholders::_2);
